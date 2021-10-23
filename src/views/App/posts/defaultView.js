@@ -33,8 +33,6 @@ const Posts = () => {
     })
   }, [updateAppStore])
 
-  !false && console.log(data)
-
   if (isLoading) {
     return <div>Loading...</div>
   }
