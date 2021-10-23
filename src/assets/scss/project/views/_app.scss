@@ -1,0 +1,68 @@
+@media (min-width: map-get($grid-breakpoints, 'xs')) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+
+    main {
+      display: flex;
+      flex-grow: 1;
+      height: 100%;
+      overflow: auto;
+      width: 100%;
+
+      .content {
+        flex-grow: 1;
+        padding: 0 24px;
+        background: $gray-150;
+      }
+    }
+
+    .dropzone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      border-width: 2px;
+      border-radius: 2px;
+      border-color: #212529;
+      border-style: dashed;
+      background-color: #fafafa;
+      justify-content: center;
+      color: #212529;
+      outline: none;
+      text-align: center;
+      transition: border 0.24s ease-in-out;
+
+      &.avatar {
+        width: 128px;
+        height: 128px;
+      }
+
+      p {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .dropzone:focus {
+      border-color: #2196f3;
+    }
+
+    .dropzone.disabled {
+      opacity: 0.6;
+    }
+  }
+}
+@media (min-width: map-get($grid-breakpoints, 'sm')) {
+}
+@media (min-width: map-get($grid-breakpoints, 'md')) {
+}
+@media (min-width: map-get($grid-breakpoints, 'lg')) {
+}
+@media (min-width: map-get($grid-breakpoints, 'xl')) {
+}
+@media (min-width: map-get($grid-breakpoints, 'xxl')) {
+}
