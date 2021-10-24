@@ -10,42 +10,39 @@ export const ProtectedRoute = ({
   ...rest
 }) => {
   const {
-      appStore: { isAuthGuardActive, user },
+      appStore: { user },
     } = useContext(AppContext),
     setComponent = props => {
-      if (isAuthGuardActive) {
-        if (user) {
-          if (roles) {
-            if (roles.includes(user.role_id)) {
-              return <Component {...props} />
-            }
-            return (
-              <Redirect
-                to={{
-                  pathname: '/unauthorized',
-                  state: { from: props.location },
-                }}
-              />
-            )
+      if (user) {
+        if (roles) {
+          if (roles.includes(user.role_id)) {
+            return <Component {...props} />
           }
-          return <Component {...props} />
+          return (
+            <Redirect
+              to={{
+                pathname: '/unauthorized',
+                state: { from: props.location },
+              }}
+            />
+          )
         }
-        return (
-          <Redirect
-            to={{
-              pathname: `/auth/sign-in/${window.btoa(props.location.pathname)}`,
-              state: {
-                notification: {
-                  code: LOGOUT_USER,
-                  color: 'app',
-                  message: 'User logged out.',
-                },
-              },
-            }}
-          />
-        )
+        return <Component {...props} />
       }
-      return <Component {...props} />
+      return (
+        <Redirect
+          to={{
+            pathname: `/admin/login`,
+            state: {
+              notification: {
+                code: LOGOUT_USER,
+                color: 'warning',
+                message: 'Please login to your account.',
+              },
+            },
+          }}
+        />
+      )
     }
 
   return <Route {...rest} render={setComponent} />

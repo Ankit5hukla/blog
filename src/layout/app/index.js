@@ -9,8 +9,8 @@ const AppLayout = ({ children }) => {
       <header>
         <Header />
       </header>
-      <main className={'mt-5 py-5'}>
-        <div className={'container'}>{children}</div>
+      <main className={'py-5'}>
+        <div className={'container mt-5'}>{children}</div>
       </main>
     </div>
   )

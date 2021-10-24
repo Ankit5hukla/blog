@@ -1,5 +1,6 @@
 import * as AllActions from 'src/constants/actions'
 import { decrypt } from 'src/helpers/Utils'
+import { userStorageKey } from 'src/constants/defaultValues'
 
 const AppReducer = (appStore, AppAction) => {
   switch (AppAction.type) {
@@ -38,7 +39,7 @@ const AppReducer = (appStore, AppAction) => {
       }
     case AllActions.REGISTER_USER_SUCCESS:
       appStore.notifications.push(AppAction.payload.notification)
-      AppAction.payload.history.push(`/auth/sign-in`)
+      AppAction.payload.history.push(`/admin/login`)
       return { ...appStore }
     case AllActions.REGISTER_USER_ERROR:
       appStore.errors.push(AppAction.payload.error)
@@ -87,6 +88,12 @@ const AppReducer = (appStore, AppAction) => {
     case AllActions.INSTITUTE_CREATION_FAILED:
       appStore.errors.push(AppAction.payload.error)
       return { ...appStore }
+    case AllActions.TOKEN_EXPIRED:
+      AppAction.payload.history &&
+        AppAction.payload.history.push('/admin/login')
+      window.localStorage.removeItem(userStorageKey)
+      appStore.errors.push(AppAction.payload.error)
+      return { ...appStore, user: null }
     default:
       return appStore
   }

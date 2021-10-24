@@ -1,27 +1,26 @@
 import React from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
+import AdminLayout from 'src/layout/admin'
 
-import AppLayout from 'src/layout/app'
+const BlogsView = React.lazy(() => import('./blogs'))
 
-const Posts = React.lazy(() => import('./defaultView'))
-
-const PostsView = ({ match }) => {
+const ViewAdmin = ({ match }) => {
   false && console.log(match)
 
   return (
-    <AppLayout>
+    <AdminLayout>
       <Switch>
         <Route
           path={`${match.url}/`}
           render={props => {
             props.match.params = { ...props.match.params, ...match.params }
-            return <Posts {...props} />
+            return <BlogsView {...props} />
           }}
         />
-        <Redirect to={'/error'} />
+        <Redirect to={'/error'} message={'page not exist'} />
       </Switch>
-    </AppLayout>
+    </AdminLayout>
   )
 }
 
-export default PostsView
+export default ViewAdmin

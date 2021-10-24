@@ -8,22 +8,20 @@ import { TITLE_UPDATE } from 'src/constants/actions'
 import { formatDate, getExcerpt } from 'src/helpers/Utils'
 
 const Posts = () => {
-  const staleTime = 30000,
+  const pageTitle = 'All Posts',
+    staleTime = 30000,
+    fetchPosts = () => axios.get(`${apiURL}/post`),
     {
       appStore: { apiURL },
       updateAppStore,
     } = useContext(AppContext),
-    { isLoading, data, isError, error } = useQuery(
-      'all-posts',
-      () => axios.get(`${apiURL}/post`),
-      {
-        // cacheTime: 5000,
-        staleTime,
-        select: data => data?.data.posts,
-        // refetchOnMount: false,
-      }
-    )
-  const pageTitle = 'All Posts'
+    { isLoading, data, isError, error } = useQuery('all-posts', fetchPosts, {
+      // cacheTime: 5000,
+      // refetchOnMount: false,
+      staleTime,
+      select: data => data?.data.posts,
+    })
+
   useEffect(() => {
     updateAppStore({
       type: TITLE_UPDATE,

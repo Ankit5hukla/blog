@@ -3,25 +3,24 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 
+import AppLayout from 'src/layout/app'
 import { AppContext } from 'src/AppContext'
 
 const Post = React.lazy(() => import('./defaultView'))
 
 const PostView = ({ match }) => {
   const staleTime = 30000,
+    fetchPost = ({ queryKey: slug }) =>
+      axios.get(`${apiURL}/post/slug/${slug}`),
     {
       appStore: { apiURL },
     } = useContext(AppContext),
-    { isLoading, data, isError } = useQuery(
-      match.params.slug,
-      () => axios.get(`${apiURL}/post/slug/${match.params.slug}`),
-      {
-        staleTime,
-        refetchInterval: false,
-        retry: false,
-        select: data => data?.data,
-      }
-    )
+    { isLoading, data, isError } = useQuery(match.params.slug, fetchPost, {
+      staleTime,
+      refetchInterval: false,
+      retry: false,
+      select: data => data?.data,
+    })
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -32,17 +31,19 @@ const PostView = ({ match }) => {
   }
 
   return (
-    <Switch>
-      <Route
-        path={`${match.url}/`}
-        render={props => {
-          props.post = data
-          props.match.params = { ...props.match.params, ...match.params }
-          return <Post {...props} />
-        }}
-      />
-      <Redirect to={'/error'} />
-    </Switch>
+    <AppLayout>
+      <Switch>
+        <Route
+          path={`${match.url}/`}
+          render={props => {
+            props.post = data
+            props.match.params = { ...props.match.params, ...match.params }
+            return <Post {...props} />
+          }}
+        />
+        <Redirect to={'/error'} />
+      </Switch>
+    </AppLayout>
   )
 }
 
