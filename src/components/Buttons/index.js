@@ -13,6 +13,7 @@ export const Button = ({
   onMouseDown,
   onMouseUp,
   onKeyDown,
+  style,
 }) => {
   return (
     <button
@@ -25,6 +26,7 @@ export const Button = ({
       title={title}
       aria-label={ariaLabel}
       disabled={disabled}
+      style={style}
     >
       {children ? children : label}
     </button>

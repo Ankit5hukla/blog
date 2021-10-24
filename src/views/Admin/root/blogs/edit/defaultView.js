@@ -1,10 +1,17 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useQuery } from 'react-query'
-
+import { Editor } from '@tinymce/tinymce-react'
 import axios from 'axios'
 
 import { AppContext } from 'src/AppContext'
 import { Button } from 'src/components/Buttons'
+import { editorConfig } from 'src/constants/defaultValues'
 import {
   TITLE_UPDATE,
   TOKEN_EXPIRED,
@@ -45,21 +52,41 @@ const EditBlog = ({
             })
         }
       }),
-    { isLoading, data, isError, error } = useQuery(postId, fetchPost, {
-      staleTime: 0,
+    { isLoading, data } = useQuery(postId, fetchPost, {
+      staleTime: Infinity,
       refetchInterval: false,
-      retry: false,
       select: data => data?.data,
     }),
+    editorRef = useRef(null),
     [title, setTitle] = useState(''),
+    [body, setContent] = useState(''),
     [btnDisable, setBtnDisable] = useState(false),
+    pickerCallback = useCallback((callback, value, meta) => {
+      if (meta.filetype === 'image') {
+        var input = document.createElement('input')
+        input.setAttribute('type', 'file')
+        input.setAttribute('accept', 'image/*')
+        input.click()
+        input.onchange = function () {
+          var file = input.files[0]
+          var reader = new FileReader()
+          reader.onload = function (e) {
+            callback(e.target.result, {
+              alt: file.name,
+            })
+          }
+          reader.readAsDataURL(file)
+        }
+      }
+    }, []),
     handleSubmit = event => {
-      event.preventDefault()
-      setBtnDisable(true)
       try {
+        event.preventDefault()
+        setBtnDisable(true)
+        console.log({ title, body })
         setTimeout(() => {
-          console.log(title)
-        }, 5000)
+          setBtnDisable(false)
+        }, 3000)
       } catch (err) {
         updateAppStore({
           type: UNEXPECTED_ERROR,
@@ -71,35 +98,35 @@ const EditBlog = ({
             },
           },
         })
-      } finally {
-        setBtnDisable(false)
       }
+      // finally {
+      //   setBtnDisable(false)
+      // }
     }
 
   useEffect(() => {
+    if (data) {
+      setTitle(data.title)
+      setContent(data.body)
+    }
     updateAppStore({
       type: TITLE_UPDATE,
       payload: {
         pageTitle: pageTitle,
       },
     })
-  }, [updateAppStore])
-
-  !false && console.log(isLoading, data, isError, title)
+  }, [updateAppStore, data])
 
   if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (isError) {
     return (
-      <div
-        className={`toast align-items-center text-white bg-danger border-0 show py-3 px-4`}
-        role={'alert'}
-        aria-live={'assertive'}
-        aria-atomic={'true'}
-      >
-        {error.message}
+      <div className={'d-flex h-100 align-items-center justify-content-center'}>
+        <div
+          className={'spinner-border spinner-border-sm text-admin'}
+          role={'status'}
+          style={{ width: '3rem', height: '3rem' }}
+        >
+          <span className={'visually-hidden'}>Loading...</span>
+        </div>
       </div>
     )
   }
@@ -116,26 +143,50 @@ const EditBlog = ({
           type={'text'}
           onChange={({ target: { value } }) => setTitle(value)}
           placeholder={'Post Title'}
-          value={data?.title}
+          value={title}
           required={true}
         />
       </div>
       <div className={'form-group mb-3'}>
-        <label htmlFor={'title'} className={'form-label'}>
-          Content
+        <label htmlFor={'image'} className={'form-label'}>
+          Image
         </label>
         <input
           className={'form-control'}
-          id={'title'}
-          type={'text'}
+          id={'image'}
+          type={'file'}
           onChange={({ target: { value } }) => setTitle(value)}
-          placeholder={'Post Title'}
-          value={data?.title}
-          required={true}
+        />
+      </div>
+      <div className={'form-group mb-3'}>
+        <label htmlFor={'content'} className={'form-label'}>
+          Content
+        </label>
+        <Editor
+          apiKey={'slam4hctjihwvvlza5dl8s8xe4vk5q07o06zmwnht0z5ue42'}
+          id={'content'}
+          onInit={(evt, editor) => {
+            return (editorRef.current = editor)
+          }}
+          onBlur={({ target }) => {
+            const value = target.getContent({ format: 'html' })
+            setContent(value)
+          }}
+          initialValue={body}
+          init={{
+            ...editorConfig,
+            file_picker_callback: pickerCallback,
+          }}
         />
       </div>
       <div className={'form-group'}>
-        <Button type={'submit'} variant={'app'} disabled={btnDisable}>
+        <Button
+          type={'submit'}
+          variant={'admin'}
+          className={'btn-lg'}
+          disabled={btnDisable}
+          style={{ minWidth: '120px' }}
+        >
           {btnDisable ? (
             <div
               className={'spinner-border spinner-border-sm text-light'}
