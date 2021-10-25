@@ -2,6 +2,7 @@ import React from 'react'
 
 export const Button = ({
   type = 'button',
+  id,
   className,
   variant = 'primary',
   ariaLabel,
@@ -18,6 +19,7 @@ export const Button = ({
   return (
     <button
       type={type}
+      id={id}
       className={`btn btn-${variant}${className ? ` ${className}` : ``}`}
       onClick={onClick}
       onMouseDown={onMouseDown}
@@ -35,6 +37,7 @@ export const Button = ({
 
 export const OutlineButton = ({
   type = 'button',
+  id,
   className,
   variant = 'primary',
   ariaLabel,
@@ -46,10 +49,12 @@ export const OutlineButton = ({
   onMouseDown,
   onMouseUp,
   onKeyDown,
+  style,
 }) => {
   return (
     <button
       type={type}
+      id={id}
       className={`btn btn-outline-${variant}${
         className ? ` ${className}` : ``
       }`}
@@ -60,6 +65,7 @@ export const OutlineButton = ({
       title={title}
       aria-label={ariaLabel}
       disabled={disabled}
+      style={style}
     >
       {children ? children : label}
     </button>

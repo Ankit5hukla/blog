@@ -5,14 +5,17 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useQuery } from 'react-query'
+import { Link } from 'react-router-dom'
+import { useQuery, useMutation } from 'react-query'
 import { Editor } from '@tinymce/tinymce-react'
 import axios from 'axios'
 
 import { AppContext } from 'src/AppContext'
 import { Button } from 'src/components/Buttons'
 import { editorConfig } from 'src/constants/defaultValues'
+import { getPostImageURL } from 'src/helpers/Utils'
 import {
+  BLOG_UPDATED,
   TITLE_UPDATE,
   TOKEN_EXPIRED,
   UNEXPECTED_ERROR,
@@ -24,7 +27,7 @@ const EditBlog = ({
     params: { postId },
   },
 }) => {
-  const pageTitle = 'Edit Post',
+  const pageTitle = 'Edit Blog',
     {
       appStore: { apiURL, user },
       updateAppStore,
@@ -52,15 +55,43 @@ const EditBlog = ({
             })
         }
       }),
+    updatePost = postData =>
+      axios({
+        method: 'put',
+        url: `${apiURL}/post/id/${postId}`,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
+        data: postData,
+      }).catch(error => {
+        if (error.response) {
+          error.response.status === 504 &&
+            updateAppStore({
+              type: TOKEN_EXPIRED,
+              payload: {
+                history,
+                error: {
+                  code: TOKEN_EXPIRED,
+                  color: 'warning',
+                  message: error.response.data.error,
+                },
+              },
+            })
+        }
+      }),
     { isLoading, data } = useQuery(postId, fetchPost, {
       staleTime: Infinity,
       refetchInterval: false,
       select: data => data?.data,
     }),
+    { mutateAsync: updateBlog, isLoading: isUpdating } =
+      useMutation(updatePost),
     editorRef = useRef(null),
     [title, setTitle] = useState(''),
+    [featuredImg, setFeaturedImg] = useState(null),
+    [slug, setSlug] = useState(''),
     [body, setContent] = useState(''),
-    [btnDisable, setBtnDisable] = useState(false),
     pickerCallback = useCallback((callback, value, meta) => {
       if (meta.filetype === 'image') {
         var input = document.createElement('input')
@@ -79,14 +110,26 @@ const EditBlog = ({
         }
       }
     }, []),
-    handleSubmit = event => {
+    handleSubmit = async event => {
+      event.preventDefault()
+      const postData = new FormData()
+      postData.append('title', title)
+      postData.append('body', body)
+      featuredImg &&
+        postData.append('featuredImg', featuredImg, featuredImg?.name)
       try {
-        event.preventDefault()
-        setBtnDisable(true)
-        console.log({ title, body })
-        setTimeout(() => {
-          setBtnDisable(false)
-        }, 3000)
+        const res = await updateBlog(postData)
+        console.log('🚀 ~ file: defaultView.js ~ line 122 ~ res', res)
+        updateAppStore({
+          type: BLOG_UPDATED,
+          payload: {
+            notification: {
+              code: BLOG_UPDATED,
+              color: 'success',
+              message: 'Blog updated successfully',
+            },
+          },
+        })
       } catch (err) {
         updateAppStore({
           type: UNEXPECTED_ERROR,
@@ -99,14 +142,12 @@ const EditBlog = ({
           },
         })
       }
-      // finally {
-      //   setBtnDisable(false)
-      // }
     }
 
   useEffect(() => {
     if (data) {
       setTitle(data.title)
+      setSlug(data.slug)
       setContent(data.body)
     }
     updateAppStore({
@@ -148,15 +189,35 @@ const EditBlog = ({
         />
       </div>
       <div className={'form-group mb-3'}>
-        <label htmlFor={'image'} className={'form-label'}>
+        <strong className={'form-label me-2'}>View Post:</strong>
+        <Link target={'_blank'} to={`/${slug}`}>
+          {`${window.origin}/${slug}`}
+        </Link>
+      </div>
+      <div className={'form-group mb-3'}>
+        <label htmlFor={'featuredImg'} className={'form-label'}>
           Image
         </label>
         <input
           className={'form-control'}
-          id={'image'}
+          id={'featuredImg'}
+          name={'featuredImg'}
           type={'file'}
-          onChange={({ target: { value } }) => setTitle(value)}
+          accept={'image/*'}
+          onChange={({
+            target: {
+              files: [file],
+            },
+          }) => setFeaturedImg(file)}
         />
+        <div className={'image mt-2'}>
+          <img
+            alt={`post-${postId}`}
+            src={getPostImageURL(postId)}
+            className={'img-fluid'}
+            style={{ maxWidth: '150px' }}
+          />
+        </div>
       </div>
       <div className={'form-group mb-3'}>
         <label htmlFor={'content'} className={'form-label'}>
@@ -182,12 +243,13 @@ const EditBlog = ({
       <div className={'form-group'}>
         <Button
           type={'submit'}
+          id={'update-post'}
           variant={'admin'}
           className={'btn-lg'}
-          disabled={btnDisable}
+          disabled={isUpdating}
           style={{ minWidth: '120px' }}
         >
-          {btnDisable ? (
+          {isUpdating ? (
             <div
               className={'spinner-border spinner-border-sm text-light'}
               role={'status'}

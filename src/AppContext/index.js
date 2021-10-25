@@ -2,13 +2,7 @@ import React, { createContext, useEffect, useReducer, useRef } from 'react'
 import { QueryClientProvider, QueryClient } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 
-import {
-  UserRole,
-  apiURL,
-  appRoot,
-  isAuthGuardActive,
-  userStorageKey,
-} from 'src/constants/defaultValues'
+import { apiURL, appRoot, userStorageKey } from 'src/constants/defaultValues'
 import { decrypt } from 'src/helpers/Utils'
 import { useLocalStorage } from 'src/hooks'
 import { LOAD_USER } from 'src/constants/actions'
@@ -20,8 +14,6 @@ export const AppContext = createContext()
 export const initialStoreState = {
   apiURL,
   appRoot,
-  isAuthGuardActive,
-  UserRole,
   userStorageKey,
   pageTitle: 'Welcome',
   siteName: 'Blog Evolve',
