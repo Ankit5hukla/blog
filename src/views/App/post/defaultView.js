@@ -3,14 +3,20 @@ import ReactHtmlParser from 'html-react-parser'
 
 import { AppContext } from 'src/AppContext'
 import { TITLE_UPDATE } from 'src/constants/actions'
-import { formatDate, getPostImageURL } from 'src/helpers/Utils'
+import { formatDate } from 'src/helpers/Utils'
 import { Link } from 'react-router-dom'
 
-const Post = ({ post: { _id, title, body, createdAt, postedBy } }) => {
+const Post = ({
+  post: { _id, title, body, featuredImg, createdAt, postedBy },
+}) => {
   const {
-    appStore: { user },
-    updateAppStore,
-  } = useContext(AppContext)
+      appStore: { user },
+      updateAppStore,
+    } = useContext(AppContext),
+    buffer = Buffer.from(featuredImg.data),
+    arraybuffer = Uint8Array.from(buffer).buffer,
+    blob = new Blob([arraybuffer], { type: featuredImg.contentType }),
+    blobURL = URL.createObjectURL(blob)
 
   useEffect(() => {
     updateAppStore({
@@ -42,11 +48,7 @@ const Post = ({ post: { _id, title, body, createdAt, postedBy } }) => {
         <h5>{`Posted By: ${postedBy.name}`}</h5>
       </div>
       <div className={'image'}>
-        <img
-          alt={`post-${_id}`}
-          src={getPostImageURL(_id)}
-          className={'img-fluid'}
-        />
+        <img alt={`post-${_id}`} src={blobURL} className={'img-fluid'} />
       </div>
       <div className={'body'}>{ReactHtmlParser(body)}</div>
     </section>
