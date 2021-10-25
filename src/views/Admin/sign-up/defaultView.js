@@ -202,7 +202,7 @@ const SignUp = ({
             <ul>
               <li>
                 <NavLink to={'/admin/login'}>
-                  <span>Already have an LMSI account? Log in</span>
+                  <span>Already have an account? Log in</span>
                 </NavLink>
               </li>
             </ul>
