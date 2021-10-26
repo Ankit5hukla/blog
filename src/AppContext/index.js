@@ -16,7 +16,7 @@ export const initialStoreState = {
   appRoot,
   userStorageKey,
   pageTitle: 'Welcome',
-  siteName: 'Blog Evolve',
+  siteName: 'Blog',
   user: null,
   errors: [],
   notifications: [],
