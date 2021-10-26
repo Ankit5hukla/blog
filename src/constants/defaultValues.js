@@ -9,7 +9,7 @@ export const apiURL = `${api.protocol}://${api.domain}`
 
 export const appRoot = '/'
 
-export const userStorageKey = 'appUser'
+export const userStorageKey = 'loggedInUser'
 
 export const editorConfig = {
   branding: false,
