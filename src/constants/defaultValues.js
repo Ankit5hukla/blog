@@ -2,7 +2,7 @@ export const encryptionSalt = 'QcoF9wH50&2VR5HNWzePz&Dkc@K7D2'
 
 export const api = {
   protocol: 'https',
-  domain: 'evolve-blogs.herokuapp.com',
+  domain: 'a-blog-5.herokuapp.com',
 }
 
 export const apiURL = `${api.protocol}://${api.domain}`
